@@ -22,8 +22,29 @@ export function SideBySidePanel({
 
   if (selected.length === 0) return null
 
-  const handleCopy = (family: string) => {
+  const handleCopyName = (family: string) => {
     navigator.clipboard.writeText(family)
+    setCopied(family)
+    setTimeout(() => setCopied((prev) => (prev === family ? null : prev)), 1200)
+  }
+
+  // Figma はクリップボードの text/html をリッチテキストとして読み取れるため、
+  // フォント・サイズ・行間・字間を反映した span を貼り付ける
+  const handleCopyStyled = async (family: string) => {
+    const content = text || 'Type text to compare'
+    const html = `<span style="font-family:'${family}';font-size:${settings.fontSize}px;line-height:${settings.lineHeight};letter-spacing:${settings.letterSpacing}em;font-weight:${settings.fontWeight};">${content}</span>`
+
+    try {
+      await navigator.clipboard.write([
+        new ClipboardItem({
+          'text/html': new Blob([html], { type: 'text/html' }),
+          'text/plain': new Blob([content], { type: 'text/plain' }),
+        }),
+      ])
+    } catch {
+      await navigator.clipboard.writeText(content)
+    }
+
     setCopied(family)
     setTimeout(() => setCopied((prev) => (prev === family ? null : prev)), 1200)
   }
@@ -45,16 +66,11 @@ export function SideBySidePanel({
             <div key={family} className="min-w-52 flex-1 p-4">
               <div className="mb-2 flex items-center justify-between">
                 <button
-                  onClick={() => handleCopy(family)}
+                  onClick={() => handleCopyName(family)}
                   title="Click to copy font name"
-                  className={cn(
-                    'truncate text-left text-xs hover:underline',
-                    copied === family
-                      ? 'text-emerald-500 dark:text-emerald-400'
-                      : 'text-zinc-500 dark:text-zinc-400',
-                  )}
+                  className="truncate text-left text-xs text-zinc-500 hover:underline dark:text-zinc-400"
                 >
-                  {copied === family ? 'Copied!' : family}
+                  {family}
                 </button>
                 <button
                   onClick={() => onRemove(family)}
@@ -64,8 +80,15 @@ export function SideBySidePanel({
                   ×
                 </button>
               </div>
-              <p
-                className="whitespace-pre-wrap break-words text-zinc-900 dark:text-zinc-100"
+              <button
+                onClick={() => handleCopyStyled(family)}
+                title="Click to copy as styled text (paste into Figma)"
+                className={cn(
+                  'block w-full whitespace-pre-wrap break-words text-left transition-opacity hover:opacity-70',
+                  copied === family
+                    ? 'text-emerald-500 dark:text-emerald-400'
+                    : 'text-zinc-900 dark:text-zinc-100',
+                )}
                 style={{
                   fontFamily: `"${family}"`,
                   fontSize: `${settings.fontSize}px`,
@@ -74,8 +97,8 @@ export function SideBySidePanel({
                   fontWeight: settings.fontWeight,
                 }}
               >
-                {text || 'Type text to compare'}
-              </p>
+                {copied === family ? 'Copied! Paste into Figma' : text || 'Type text to compare'}
+              </button>
             </div>
           ))}
         </div>
