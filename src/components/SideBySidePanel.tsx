@@ -86,7 +86,7 @@ export function SideBySidePanel({
                 className={cn(
                   'block w-full whitespace-pre-wrap break-words text-left transition-opacity hover:opacity-70',
                   copied === family
-                    ? 'text-emerald-500 dark:text-emerald-400'
+                    ? 'text-zinc-400 dark:text-zinc-500'
                     : 'text-zinc-900 dark:text-zinc-100',
                 )}
                 style={{
@@ -97,7 +97,7 @@ export function SideBySidePanel({
                   fontWeight: settings.fontWeight,
                 }}
               >
-                {copied === family ? 'Copied! Paste into Figma' : text || 'Type text to compare'}
+                {copied === family ? 'Copied' : text || 'Type text to compare'}
               </button>
             </div>
           ))}
