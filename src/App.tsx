@@ -215,6 +215,9 @@ export default function App() {
 
   return (
     <div className="flex min-h-screen flex-col">
+      <h1 className="sr-only">
+        フォント比較ツール Font Compare — PC・Google Fonts・モリサワフォントを一覧で見比べ
+      </h1>
       <ControlBar
         text={text}
         onTextChange={setText}
